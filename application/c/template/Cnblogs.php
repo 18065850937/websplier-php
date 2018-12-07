@@ -25,7 +25,9 @@ class Cnblogs implements SiteCollectImplode
         $this->default ='cnblogs';
         $this->IndexList=[
             ['url'=>'https://www.cnblogs.com/cate/php/','cat'=>'php'],
-
+            ['url'=>'https://www.cnblogs.com/cate/python/','cat'=>'python'],
+            ['url'=>'https://www.cnblogs.com/cate/java/','cat'=>'java'],
+            ['url'=>'https://www.cnblogs.com/cate/go/','cat'=>'go'],
         ];
     }
 

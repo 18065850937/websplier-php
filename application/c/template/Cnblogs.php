@@ -13,6 +13,7 @@ namespace app\c\template;
 
 
 use app\c\implode\SiteCollectImplode;
+use app\c\model\WaitWork;
 use app\c\repertory\ToCacheNewData;
 use QL\QueryList;
 
@@ -20,6 +21,7 @@ class Cnblogs implements SiteCollectImplode
 {
     private $IndexList;
     private $default;
+    private $downNum=2;//获取文章的量
     public function __construct()
     {
         $this->default ='cnblogs';
@@ -48,6 +50,13 @@ class Cnblogs implements SiteCollectImplode
      */
     public function getSiteDetail()
     {
-        // TODO: Implement getSiteDetail() method.
+        $data =WaitWork::where(['status'=>0])->order('create_time','asc')->limit($this->downNum)->select();
+        if(empty($data)){
+            return $data;
+        }
+        foreach ($data as $key=>$info){
+            $reg = \app\c\reg\Cnblogs::detailReg();
+            $result = QueryList::get($info['url'])->rules($reg)->queryData();
+        }
     }
 }

@@ -44,5 +44,17 @@ class ToCacheNewData
             cache($datainfo['title'],$datainfo['title']);
         }
     }
+    public static function inDetailDb(array $data){
+        if(empty($data)){
+            return false;
+        }
+        $insert =[
+            'title'=>$data['data'],
+            'content'=>$data['content'],
+            'create_time'=>date('Y-m-d H:i:s'),
+            'update_time'=>date('Y-m-d H:i:s'),
+            
+        ];
+    }
 
 }

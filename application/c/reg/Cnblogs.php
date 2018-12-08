@@ -22,4 +22,11 @@ class Cnblogs
         );
         return $res;
     }
+    public static function detailReg(){
+        $res =array(
+            'title'=>array('#cb_post_title_url','text'),
+            'content'=>array('#cnblogs_post_body','html'),
+        );
+        return $res;
+    }
 }

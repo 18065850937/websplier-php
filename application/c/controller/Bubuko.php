@@ -15,7 +15,7 @@ namespace app\c\controller;
 class Bubuko
 {
     public function index(){
-        (new \app\c\template\Cnblogs())->getIndexWebSite();
+        (new \app\c\template\Cnblogs())->getSiteDetail();
     }
 
 }

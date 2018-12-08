@@ -10,6 +10,8 @@
  */
 
 namespace app\command;
+use app\c\sevice\Observer;
+use app\c\template\Bubuko;
 use app\c\template\Cnblogs;
 use think\console\Command;
 use think\console\Input;
@@ -25,7 +27,10 @@ class Collect extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        (new Cnblogs())->getIndexWebSite();
+        $class = new Observer();
+        $class->addObj(new Cnblogs());
+        $class->addObj(new Bubuko());
+        $class->cry();
         $output->writeln("正在执行");
     }
 

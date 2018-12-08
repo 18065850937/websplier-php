@@ -18,6 +18,7 @@ class Cnblogs
         $res =array(
             'title'=>array('.titlelnk','text'),
             'url'=>array('.titlelnk','href'),
+            'describe'=>array('.post_item_summary','text','-a'),
         );
         return $res;
     }

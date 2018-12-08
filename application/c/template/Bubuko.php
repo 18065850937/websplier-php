@@ -13,15 +13,20 @@ namespace app\c\template;
 
 use app\c\implode\SiteCollectImplode;
 use app\c\reg\BubukoReg;
+use app\c\repertory\ToCacheNewData;
 use QL\QueryList;
 class Bubuko implements SiteCollectImplode
 {
     private $IndexList;
+    private $default;
 
     public function __construct()
     {
+        $this->default ='bubuko';
         $this->IndexList =[
-            'http://www.bubuko.com/infolist-2-1.html',
+            ['url'=>'http://www.bubuko.com/infolist-2-1.html','cat'=>'web'],
+            ['url'=>'http://www.bubuko.com/infolist-9-1.html','cat'=>'wechat'],
+            ['url'=>'http://www.bubuko.com/infolist-5-1.html','cat'=>'db'],
         ];
     }
 
@@ -32,9 +37,11 @@ class Bubuko implements SiteCollectImplode
     {
         foreach ($this->IndexList as $key =>$url){
             $reg =BubukoReg::listReg();
-//            $rang = '.content';
-            $ql = QueryList::get($url)->rules($reg)->queryData();
-            dump($ql);
+            $ql = QueryList::get($url['url'])->removeHead()->rules($reg)->queryData(function ($item){
+                $item['url'] = "http://www.bubuko.com".$item['url'];
+                return $item;
+            });
+            ToCacheNewData::inToDb($ql,$this->default,$url['cat']);
         }
     }
 

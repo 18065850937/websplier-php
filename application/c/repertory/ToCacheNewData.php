@@ -37,6 +37,7 @@ class ToCacheNewData
                 'title'=>$datainfo['title'],
                 'url'=>$datainfo['url'],
                 'cat'=>$cat,
+                'describe'=>$datainfo['describe'],
                 'create_time'=>date('Y-m-d H:i:s'),
             ];
             WaitWork::create($insert);

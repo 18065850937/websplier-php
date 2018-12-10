@@ -31,6 +31,7 @@ class Observer
     public function cry(){
         foreach ($this->objs as $obj){
             $obj->getIndexWebSite();
+            $obj->getSiteDetail();
         }
     }
 

@@ -13,15 +13,19 @@ namespace app\c\template;
 
 
 use app\c\implode\SiteCollectImplode;
+use app\c\model\Article;
 use app\c\model\WaitWork;
 use app\c\repertory\ToCacheNewData;
 use QL\QueryList;
+use think\Db;
+use think\Exception;
 
 class Cnblogs implements SiteCollectImplode
 {
     private $IndexList;
     private $default;
     private $downNum=2;//获取文章的量
+    private $waitWorkDb;
     public function __construct()
     {
         $this->default ='cnblogs';
@@ -31,6 +35,8 @@ class Cnblogs implements SiteCollectImplode
             ['url'=>'https://www.cnblogs.com/cate/java/','cat'=>'java'],
             ['url'=>'https://www.cnblogs.com/cate/go/','cat'=>'go'],
         ];
+        $this->waitWorkDb = new \app\c\repertory\WaitWork();
+
     }
 
     /**
@@ -55,8 +61,26 @@ class Cnblogs implements SiteCollectImplode
             return $data;
         }
         foreach ($data as $key=>$info){
-            $reg = \app\c\reg\Cnblogs::detailReg();
-            $result = QueryList::get($info['url'])->rules($reg)->queryData();
+            try{
+                $reg = \app\c\reg\Cnblogs::detailReg();
+                $result = QueryList::get($info['url'])->rules($reg)->queryData();
+                if(empty($result[0]['content'])){
+                    continue;
+                }
+                $detail =[
+                    'content'=>$result[0]['content'],
+                    'title'=>$result[0]['title'],
+                    'auther'=>$info['auther']??'本站',
+                    'url'=>$info['url'],
+                ];
+                $res =(new \app\c\repertory\Article())->add($detail);
+                if($res){
+                    $this->waitWorkDb->finish($info['id']);
+                }
+            }catch (Exception $exception){
+                $this->waitWorkDb->finish($info['id']);
+            }
+
         }
     }
 }

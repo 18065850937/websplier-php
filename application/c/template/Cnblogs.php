@@ -56,7 +56,7 @@ class Cnblogs implements SiteCollectImplode
      */
     public function getSiteDetail()
     {
-        $data =WaitWork::where(['status'=>0])->order('create_time','asc')->limit($this->downNum)->select();
+        $data =WaitWork::where(['status'=>0,'website'=>$this->default])->order('create_time','asc')->limit($this->downNum)->select();
         if(empty($data)){
             return $data;
         }

@@ -34,6 +34,11 @@ class Wenda
     public function listDetail()
     {
         $reg = [
+            'map'=>['.seotops','text','',function($content){
+                $res = substr($content,15);
+                $result = explode('＞',$res);
+                return $result;
+            }],
             'name' => ['.ti2m', 'text'],
             'url'  => ['.p15>a', 'href', '', function ($content) {
                 $baseUrl = 'https://www.asklib.com';

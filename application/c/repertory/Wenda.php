@@ -15,6 +15,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 
 use QL\QueryList;
+use think\Db;
 
 class Wenda
 {
@@ -28,9 +29,43 @@ class Wenda
         $url = 'https://www.asklib.com/t26513/t27519.html';
         $reg = (new \app\c\reg\Wenda())->catList();
         $data = QueryList::get($url)->rules($reg)->query()->getData();
+        $wait_data =[];
+        $catId = 0;
         if (count($data) != 0) {
             //做存储
-            $this->getList($data);
+            foreach ($data as $key => $listDetail) {
+                //做判断，这个题目是否入库了
+                $data = $this->getList($listDetail);
+                if (!empty($data)) {
+                    $down =0;
+                    foreach ($data as $k => $item) {
+                        if (!empty($item['map'])) {
+                            if($down ==0){
+                                $down ++;
+                                //这个试题，是哪个分类的，先从数据库中找出来
+                                $catId = $this->getSaveCatId($item['map'][0], $item['map'][1]);
+                                //存在，跳过
+                                if($this->isReady($item['map'])){
+                                    continue;
+                                }
+                            }
+                            //加入内存中，一次性储存。
+                            $info = [
+                                'title'=>$item['name'],
+                                'url'=>$item['url'],
+                                'cat'=>$catId,
+                                'create_time'=>date('Y-m-d H:i:s'),
+                                'type'=>'wenda'
+                            ];
+                            $wait_data[] = $info;
+                        }
+                    }
+                }
+
+            }
+          //插入数据库
+            dump($wait_data);
+            Db::table('wait_work')->insertAll($wait_data);
         } else {
             return false;
         }
@@ -38,29 +73,41 @@ class Wenda
     }
 
     /**
-     * @dec : 获取题目的列表
+     * @dec : 获取题目的列表,这个是第一页
      */
-    public function getList($data)
+    public function getList($listDetail)
     {
-        $data = json_decode(json_encode($data), true);
-        if (empty($data)) {
-            return false;
-        }
+
 //        [0] => array(2) {
 //            ["name"] => string(27) "管理的基本原理题库"
 //            ["url"] => string(41) "https://www.asklib.com/t17065/t17102.html"
 //    }
-
-        foreach ($data as $key => $listDetail) {
-            $url = $listDetail['url'];
+//        $listDetail['url'] = 'https://www.asklib.com/t16160/t16190.html';
+        $alldata = [];
+        $url = substr($listDetail['url'], 0, strlen($listDetail['url']) - 5);
+        for ($i = 1; $i <= 999999; $i++) {
+            $urled = $url . '/' . 'p' . $i . '.html';
             $reg = (new \app\c\reg\Wenda())->listDetail();
-            $data = QueryList::get($url)->rules($reg)->query()->getData();
+            $data = QueryList::get($urled)->rules($reg)->query()->getData();
             if (count($data) != 0) {
-                $this->getDetail($data);
+                $arr = json_decode(json_encode($data), true);
+                if ($arr[0]['name'] == '[]') {
+                    break;
+                }
+                if (!empty($arr)) {
+                    foreach ($arr as $key => $value) {
+                        $alldata[] = $value;
+                    }
+                }
+//                   $alldata[]= $arr;
+//                $this->getDetail($data);
             } else {
-                return false;
+                break;
             }
         }
+        return $alldata;
+
+
     }
 
     /**
@@ -74,11 +121,10 @@ class Wenda
         }
         foreach ($data as $key => $wenDaDetail) {
             $res = $this->getRealDetailArr($wenDaDetail['url']);
-            if($res == false){
-                echo "采集失败了";
-           }
-           dump($res);
-            exit;
+            if ($res == false) {
+                //采集失败了，邮件通知了
+                break;
+            }
         }
 
     }
@@ -113,7 +159,7 @@ class Wenda
     public function get($sessionID = '', $url = '')
     {
         $cookieJar = CookieJar::fromArray([
-            'PHPSESSID' => $sessionID.'kk'
+            'PHPSESSID' => $sessionID
         ], 'www.asklib.com'); // 此处记得请求域名需要保持跟请求的url host一致，否则不会携带此cookie。
         $client = new Client([
             'cookies' => $cookieJar,
@@ -135,19 +181,52 @@ class Wenda
         $res = QueryList::html($data)->rules($reg)->query()->queryData();
         if (strpos($res[0]['answer'], 'showlogin')) {
             $cache = cache('getRealDetailArr');
-            //session 错误，或者session过期了，或者采集账号，没有充值钱。重新获取token
-            if($cache >2){
+            if ($cache > 1) {
                 return false;
             }
+            $cache += 1;
+            cache('getRealDetailArr', $cache, 2);
+            //session 错误，或者session过期了，或者采集账号，没有充值钱。重新获取token
             $sessionId = $this->getSession(true);
             $res = $this->getRealDetailArr($url);
-            $cache += 1;
-            cache('getRealDetailArr',$cache);
             if ($res == false) {
                 return false;
             }
             return false;
         }
         return $res;
+    }
+
+    /*
+     * 获取分类id
+     */
+    public function getSaveCatId($item1, $item2)
+    {
+        $cat1 = Db::table('wenda_cat')->where(['name' => $item1, 'is_delete' => 0])->find();
+        if ($cat1) {
+            $pid = $cat1['id'];
+        } else {
+            $pid = Db::table('wenda_cat')->insertGetId([
+                'name' => $item1,
+                'pid'=>2,
+            ]);
+        }
+        $cat2 = Db::table('wenda_cat')->where(['name' => $item2, 'is_delete' => 0, 'pid' => $pid])->find();
+        if ($cat2) {
+            return $cat2['id'];
+        } else {
+            return Db::table('wenda_cat')->insertGetId([
+                'name' => $item2,
+                'pid'  => $pid
+            ]);
+        }
+    }
+
+
+    /*
+     * 这个试题是否存在
+     */
+    public function isReady($item){
+      return  Db::table('wenda_cat')->where(['name'=>$item[1]])->find();
     }
 }

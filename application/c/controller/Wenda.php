@@ -16,6 +16,7 @@ class Wenda
 {
     public function index()
     {
+        set_time_limit(130);
         (new \app\c\repertory\Wenda())->CatList();
     }
 }

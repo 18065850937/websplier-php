@@ -12,7 +12,7 @@ use think\Validate;
 class Detail extends Validate
 {
     protected $rule =   [
-        'name'  => 'require|max:99|checkAgain|chs',
+        'name'  => 'require|max:99|chs',
         'age'   => 'number|between:1,120',
         'email' => 'email',
     ];
@@ -25,6 +25,15 @@ class Detail extends Validate
         'email'        => '邮箱格式错误',
 
     ];
+    protected $scene = [
+        'name'=>['name','age']
+    ];
+
+    public function teDing(){
+        return $this->only(['name'])
+            ->append('name','checkAgain')
+            ->remove('name','chs');
+    }
 
     /**
      * 验证数据库数据
@@ -34,7 +43,7 @@ class Detail extends Validate
      * @return bool
      */
     protected function checkAgain($value, $rule, $data=[]){
-        return true;
+        return '自定义错误';
     }
 
 }

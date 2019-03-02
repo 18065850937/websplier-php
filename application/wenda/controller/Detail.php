@@ -24,8 +24,8 @@ class Detail extends Controller
             'email' => 'thinkphp@qq.com',
         ];
         $validate = new \app\wenda\validate\Detail;
-        if (!$validate->check($data)) {
-            dump($validate->getError());
+        if (!$validate->teDing()->check($data)) {
+            return ($validate->getError());
         }
     }
 }

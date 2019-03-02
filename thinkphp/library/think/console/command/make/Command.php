@@ -17,7 +17,7 @@ use think\facade\App;
 
 class Command extends Make
 {
-    protected $type = "command";
+    protected $type = "Command";
 
     protected function configure()
     {

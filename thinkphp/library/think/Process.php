@@ -76,7 +76,7 @@ class Process
         1   => 'General error',
         2   => 'Misuse of shell builtins',
         126 => 'Invoked command cannot execute',
-        127 => 'command not found',
+        127 => 'Command not found',
         128 => 'Invalid exit argument',
         // signals
         129 => 'Hangup',
@@ -221,7 +221,7 @@ class Process
         $commandline = $this->commandline;
 
         if ('\\' === DIRECTORY_SEPARATOR && $this->enhanceWindowsCompatibility) {
-            $commandline = 'cmd /V:ON /E:ON /c "(' . $commandline . ')';
+            $commandline = 'cmd /V:ON /E:ON /C "(' . $commandline . ')';
             foreach ($this->processPipes->getFiles() as $offset => $filename) {
                 $commandline .= ' ' . $offset . '>' . Utils::escapeArgument($filename);
             }

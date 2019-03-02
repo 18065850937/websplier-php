@@ -39,7 +39,7 @@ class Console
         'list'              => "think\\console\\command\\Lists",
         'build'             => "think\\console\\command\\Build",
         'clear'             => "think\\console\\command\\Clear",
-        'make:command'      => "think\\console\\command\\make\\command",
+        'make:command'      => "think\\console\\command\\make\\Command",
         'make:controller'   => "think\\console\\command\\make\\Controller",
         'make:model'        => "think\\console\\command\\make\\Model",
         'make:middleware'   => "think\\console\\command\\make\\Middleware",
@@ -422,7 +422,7 @@ class Console
         }
 
         if (null === $command->getDefinition()) {
-            throw new \LogicException(sprintf('command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
+            throw new \LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
         }
 
         $this->commands[$command->getName()] = $command;
@@ -559,7 +559,7 @@ class Console
                 $this->findNamespace(substr($name, 0, $pos));
             }
 
-            $message = sprintf('command "%s" is not defined.', $name);
+            $message = sprintf('Command "%s" is not defined.', $name);
 
             if ($alternatives = $this->findAlternatives($name, $allCommands)) {
                 if (1 == count($alternatives)) {
@@ -577,7 +577,7 @@ class Console
         if (count($commands) > 1 && !$exact) {
             $suggestions = $this->getAbbreviationSuggestions(array_values($commands));
 
-            throw new \InvalidArgumentException(sprintf('command "%s" is ambiguous (%s).', $name, $suggestions));
+            throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
         }
 
         return $this->get($exact ? $name : reset($commands));
@@ -785,7 +785,7 @@ class Console
     /**
      * 设置默认的指令
      * @access public
-     * @param  string $commandName The command name
+     * @param  string $commandName The Command name
      */
     public function setDefaultCommand($commandName)
     {

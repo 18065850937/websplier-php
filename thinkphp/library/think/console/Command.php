@@ -188,7 +188,7 @@ class Command
     public function setCode(callable $code)
     {
         if (!is_callable($code)) {
-            throw new \InvalidArgumentException('Invalid callable provided to command::setCode.');
+            throw new \InvalidArgumentException('Invalid callable provided to Command::setCode.');
         }
 
         if (PHP_VERSION_ID >= 50400 && $code instanceof \Closure) {
@@ -464,7 +464,7 @@ class Command
     private function validateName($name)
     {
         if (!preg_match('/^[^\:]++(\:[^\:]++)*$/', $name)) {
-            throw new \InvalidArgumentException(sprintf('command name "%s" is invalid.', $name));
+            throw new \InvalidArgumentException(sprintf('Command name "%s" is invalid.', $name));
         }
     }
 

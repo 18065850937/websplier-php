@@ -87,7 +87,7 @@ class Console
     public function getCommand($name)
     {
         if (!isset($this->commands[$name]) && !isset($this->aliases[$name])) {
-            throw new \InvalidArgumentException(sprintf('command %s does not exist.', $name));
+            throw new \InvalidArgumentException(sprintf('Command %s does not exist.', $name));
         }
 
         return isset($this->commands[$name]) ? $this->commands[$name] : $this->aliases[$name];

@@ -13,6 +13,14 @@ class Detail extends Controller
 {
     public function index($id){
 
+        $class = app('user');
+        $res =$class->test();
+
+        bind('sayHello', function ($name) {
+            return 'hello,' . $name;
+        });
+        echo app('sayHello',['thinkphp']);
+
 //        $validate = $this->validate([
 //            'id'=>$id,
 //        ],'\app\wenda\validate\Detail');
